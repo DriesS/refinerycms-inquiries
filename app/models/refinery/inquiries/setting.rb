@@ -40,10 +40,20 @@ module Refinery
           end
         end
 
-        def notification_recipients
-          Refinery::Setting.find_or_set(:inquiry_notification_recipients,
+        def notification_recipients(locale='en')
+          Refinery::Setting.find_or_set("inquiry_notification_recipients_#{locale}".to_sym,
                                         ((Refinery::Role[:refinery].users.first.email rescue nil) if defined?(Refinery::Role)).to_s,
                                         :scoping => "inquiries")
+        end
+
+
+        def notification_recipients=(value)
+          value.first.keys.each do |locale|
+            Refinery::Setting.set("inquiry_notification_recipients_#{locale}".to_sym, {
+                                    :value => value.first[locale.to_sym],
+                                    :scoping => "inquiries"
+                                  })
+          end
         end
 
         def notification_subject
@@ -51,9 +61,9 @@ module Refinery
                                         "New inquiry from your website",
                                         :scoping => "inquiries")
         end
-        
+
         def send_confirmation?
-          Refinery::Setting.find_or_set(:inquiry_send_confirmation, 
+          Refinery::Setting.find_or_set(:inquiry_send_confirmation,
                                         true,
                                         :scoping => "inquiries")
         end

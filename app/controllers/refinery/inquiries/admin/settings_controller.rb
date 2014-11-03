@@ -4,7 +4,7 @@ module Refinery
       class SettingsController < Refinery::AdminController
 
         before_filter :check_setting, :only => [:edit, :update]
-        after_filter :save_subject_for_confirmation, :save_message_for_confirmation, :only => :update
+        after_filter :save_subject_for_confirmation, :save_message_for_confirmation, :save_notification_recipients, :only => :update
 
         def edit
           @setting = Refinery::Setting.find(params[:id])
@@ -34,6 +34,10 @@ module Refinery
 
         def save_subject_for_confirmation
           Refinery::Inquiries::Setting.confirmation_subject = params[:subject] if params.keys.include?('subject')
+        end
+
+        def save_notification_recipients
+          Refinery::Inquiries::Setting.notification_recipients = params[:recipients] if params.keys.include?('recipients')
         end
 
         def save_message_for_confirmation
